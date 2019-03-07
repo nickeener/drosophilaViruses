@@ -3,7 +3,7 @@ import sys
 from Bio import Entrez, SeqIO
 
 global n
-n = 70 # size of segments
+n = 8836 # size of segments
 
 # Retrive sequence and sequence length from entrez using the accession number
 def getseq(ID):
