@@ -4,6 +4,7 @@ import sys
 import subprocess
 import pandas as pd
 import time
+import pdb
 
 # Start timer
 start_time = time.time()
@@ -11,6 +12,7 @@ start_time = time.time()
 # Set kmer size and drive to use
 kmer = str(20)
 drive = int(sys.argv[2])
+bf_size = str(834090)
 
 # Get list of all files/directories in the mapping directory of interest
 study = sys.argv[1]
@@ -54,10 +56,11 @@ else:
 bf_size = (bf_size+int(bf_size*.05))/1000 # Add a small portion to make a slight overstimation and divide by 1000 to get it in K format
 bf_size = str(bf_size)
 
+
 # For each run, call makebf to create bloom filter from each run using the bit size calculated above
-for run in runs:
-	print('~/HowDeSBT/howdesbt makebf --k='+kmer+' --min=2 --bits='+bf_size+'K --threads=8 '+run+'_combined.fastq --out='+run+'.bf')
-	subprocess.call(['./makebf.sh', study, run, kmer, bf_size])
+'''for run in runs:
+	print('~/tools/HowDeSBT/howdesbt makebf --k='+kmer+' --min=2 --bits='+bf_size+'K --threads=8 '+run+'_combined.fastq --out='+run+'.bf')
+	subprocess.call(['./makebf.sh', study, run, kmer, bf_size])'''
 
 # Run other howdesbt commands and query the index with the specified query
 subprocess.call(['./cluster_build_query.sh', study, str(int(bf_size)*0.1)])

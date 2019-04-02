@@ -23,12 +23,12 @@ for i in range(len(output)):
 # Elimnate every other element from previous list (each run has a double because of forward/reverse reads)
 runs = []
 for i in range(len(reads)):
-	if i%2 == 1:
+	if i%2 == 0:
 		runs.append(reads[i])
 
 # Call readcounts.sh on each run to print out the number of reads in each run to stdout
+print("Run Accession Number\tRead Count")
 for run in runs:
-	print(run)
 	output = subprocess.Popen(['./readcounts.sh', study, run], stdout=subprocess.PIPE)
 	linecount = output.stdout.read()
-	print(int(linecount)/4)
+	print(run[0:10]+'\t'+str(int(linecount)/4))

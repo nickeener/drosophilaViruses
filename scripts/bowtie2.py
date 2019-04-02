@@ -1,27 +1,40 @@
 # Reads input files (consisting of the mate pair file names listed on separate lines), converts
 # this information into a format that can be inputed into bowtie2 and then calls bowtie2
 # to map the read files to the specified reference
-# USAGE: python bowtie2.py <Study Accession Number> <Reference Index>
+# USAGE: python bowtie2.py <Study Accession Number> <Reference Index> <Drive Type>
 	# Study Accession Number is the folder name where the read files are located
 	# Reference Index is the folder name where the index files for the reference genome 
 	# are located
 
 # Make sure read file list file is formatted correctly! (No spaces at end of each)
 
+# Import libraries
 import sys
 import subprocess
+import pdb
+
+# Set study accession number and drive type to variable
+study = sys.argv[1]
+drive = sys.argv[3]
 
 # Read file, store as list and remove newline characters
-pair1file = "/home/nickeener/projects/drosophilaViruses/mapping/"+sys.argv[1]+"/pair1_trimmed.txt"
+if drive == 0:
+	pair1file = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/pair1.txt"
+else:
+	pair1file = "/media/nickeener/External_Drive/"+study+"/pair1.txt"
 with open(pair1file) as file:
 	pair1 = file.readlines()
 	pair1 = [line.strip('\n') for line in open(pair1file)]
 
-# Create list with the absolute path to each file
-pairpath = "/home/nickeener/projects/drosophilaViruses/mapping/"+sys.argv[1]+"/trimmed/"
+# Create list with the absolute path to each file and sort list
+if drive == 0:
+	pairpath = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/"
+else:
+	pairpath = "/media/nickeener/External_Drive/"+study+"/"
 newpair1 = []
 for i in pair1:
 	newpair1.append(pairpath+i)
+newpair1.sort()
 
 # Convert previous list into a comma separated string
 pair1commalist= ""
@@ -30,16 +43,19 @@ for i in newpair1:
 pair1commalist = pair1commalist[:-1]
 
 # Read file, store as list and remove newline characters
-pair2file = "/home/nickeener/projects/drosophilaViruses/mapping/"+sys.argv[1]+"/pair2_trimmed.txt"
+if drive == 0:
+	pair2file = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/pair2.txt"
+else:
+	pair2file = "/media/nickeener/External_Drive/"+study+"/pair2.txt"
 with open(pair2file) as file:
 	pair2 = file.readlines()
 	pair2 = [line.strip('\n') for line in open(pair2file)]
 
-# Create list with the absolute path to each file
+# Create list with the absolute path to each file and sort list
 newpair2 = []
 for i in pair2:
 	newpair2.append(pairpath+i)
-
+newpair2.sort()
 
 # Convert previous list into a comma separated string
 pair2commalist= ""
@@ -52,14 +68,29 @@ reference = sys.argv[2]
 index = "/home/nickeener/projects/drosophilaViruses/mapping/indexes/"+reference+"/bowtie2/"+reference
 
 # Create new folder to store results in
-newdir = "/home/nickeener/projects/drosophilaViruses/mapping/"+sys.argv[1]+"/bowtie"
+if drive == 0:
+	#newdir = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/bowtie"
+	newdir = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/bowtie/individual"
+else:
+	#newdir = "/media/nickeener/External_Drive/"+study+"/bowtie"
+	newdir = "/media/nickeener/External_Drive/"+study+"/bowtie/individual"
 try:
 	subprocess.call(['mkdir', newdir])
 except:
 	pass
 
-# Call bowtie2
-subprocess.call(['./bowtie2.sh', index, pair1commalist, pair2commalist, newdir, sys.argv[2]])
+# Call bowtie2 on all runs in a study at once
+#subprocess.call(['./bowtie2.sh', index, pair1commalist, pair2commalist, newdir, sys.argv[2]])
+
+# Call bowtie2 on each run individually
+for pair1,pair2 in zip(newpair1,newpair2):
+	if drive == 0:
+		print("Mapping "+study+" - "+pair1[61:71])
+		subprocess.call(['./bowtie2.sh', index, pair1, pair2, newdir, pair1[61:71]])
+	else:
+		print("Mapping "+pair1[42:52])
+		subprocess.call(['./bowtie2.sh', index, pair1, pair2, newdir, pair1[42:52]])
+
 
 # Debugging
 '''print(index)

@@ -15,5 +15,5 @@ rm $2.bc
 echo jellyfish dump
 jellyfish dump --column --lower-count=2 $2.jf \
 	| awk '{print $1}' \
-	| ~/HowDeSBT/howdesbt makebf /dev/stdin --kmersin K=20 --bits=$5K --out=bloomTrees/$2.bf
+	| ~/tools/HowDeSBT/howdesbt makebf /dev/stdin --kmersin K=20 --bits=$5K --out=bloomTrees/$2.bf
 rm $2.jf

@@ -9,7 +9,7 @@ study = sys.argv[1]
 run = sys.argv[2]
 kmer = str(20)
 drive = int(sys.argv[3])
-#bf_size = str(878967)
+bf_size = str(834090)
 
 # Create bloomTree directory in correct mapping directory
 if drive == 0:
@@ -35,7 +35,7 @@ else:
 	subprocess.call(['rm', '/media/nickeener/External_Drive/'+study+'/'+run+'_k'+kmer+'.hist'])
 
 # Calculate kmer frequencies of all the study's read files using ntcard and use to calculate appropriate bloom filter size
-'''print('ntcard --kmer='+kmer+' --threads=8 --pref='+study+' *.fastq.gz')
+print('ntcard --kmer='+kmer+' --threads=8 --pref='+study+' *.fastq.gz')
 subprocess.call(['./ntcard.sh', kmer, study])
 #data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/'+study+'/'+study+'_k'+kmer+'.hist', header=None, sep='\t', names=['1', '2'])
 data = pd.read_csv('/media/nickeener/External_Drive/'+study+'/'+study+'_k'+kmer+'.hist', header=None, sep='\t', names=['1', '2'])
@@ -43,7 +43,7 @@ bf_size = data['2'][1]-data['2'][2]
 #subprocess.call(['rm', '/home/nickeener/projects/drosophilaViruses/mapping/'+study+'/'+study+'_k'+kmer+'.hist'])
 subprocess.call(['rm', '/media/nickeener/External_Drive/'+study+'/'+study+'_k'+kmer+'.hist'])
 bf_size = (bf_size+int(bf_size*.05))/1000 # Add a small portion to make a slight overstimation and divide by 1000 to get it in K format
-bf_size = str(bf_size)'''
+bf_size = str(bf_size)
 
 # Call large_makebf.sh
-subprocess.call(['./large_makebf.sh', study, run, bc_size, count_size, bf_size])
+subprocess.call(['./large_makebf.sh', study, run, bc_size, count_size, bf_size]) 

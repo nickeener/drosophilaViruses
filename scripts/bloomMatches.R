@@ -7,7 +7,7 @@ library(SRAdb)
 
 # Check if SRA metadata file is in working directory, if it exists:
 # set it to sqlfile, if not: download it and then set it to sqlfile
-setwd("~/scripts/drosphilaviruses")
+setwd("~/projects/drosophilaViruses")
 if(!file.exists('SRAmetadb.sqlite')) {
   sqlfile <- getSRAdbFile()
 } else {

@@ -6,7 +6,7 @@ import subprocess
 # Set study accession number, drive type and samplerate to variables
 study = sys.argv[1]
 drive = int(sys.argv[2])
-samplerate = str(0.1)
+samplerate = [str(0.05), str(0.15), str(0.2), str(0.25), str(0.4)]
 
 # Get list of all files/directories in the mapping directory of interest
 study = sys.argv[1]
@@ -31,13 +31,17 @@ for i in range(len(reads)):
 	else:
 		pair2.append(reads[i])
 
-# Create new directory to put subsampled reads in
-if drive == 0:
-	newdir = '/home/nickeener/projects/drosophilaViruses/mapping/'+study+'/subsample'+samplerate
-else:
-	newdir = '/media/nickeener/External_Drive/'+study+'/subsample'+samplerate
-subprocess.call(['mkdir', newdir])
+for rate in samplerate:
+# Create new directory to put subsampled reads in for each samplerate
+	if drive == 0:
+		newdir = '/home/nickeener/projects/drosophilaViruses/mapping/'+study+'/subsample'+rate
+	else:
+		newdir = '/media/nickeener/External_Drive/'+study+'/subsample'+rate
+	subprocess.call(['mkdir', newdir])
 
-# Call subsample.sh which uses reformat.sh (bbmap) to create subsamples of reads in a study
-for one,two in zip(pair1,pair2):
-	subprocess.call(['./subsample.sh', study, one, two, samplerate])
+
+# Call subsample.sh which uses reformat.sh (bbmap) to create subsamples of reads in a study for each samplerate
+for rate in samplerate:
+	for one,two in zip(pair1,pair2):
+		subprocess.call(['./subsample.sh', study, one, two, rate])
+		print("Done with "+one[0:10])

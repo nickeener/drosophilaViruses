@@ -1,6 +1,6 @@
 # Uses querybf on simmed Drosophila reads to find kmers shared between Drosophila and the query then uses querybf again to find twyford kmers in actual sequencing data
 # Background kmers are then removed from data and the number of matches recalculated and the output of howdesbt query modified to reflect the new kmer match count
-# USAGE: python ./remove_background_kmers.py [Study Accession Number] [Drive Type] [Query Name]
+# USAGE: python remove_background_kmers.py [Study Accession Number] [Drive Type] [Query Name]
 
 import sys
 import subprocess
@@ -55,9 +55,29 @@ for run in runs:
 	kmers = pd.unique(kmers).tolist()
 	kmer_list[run] = kmers
 
-# For each run, remove kmers that also appear in Drosophila transcriptome (SRP0000001 is the study number under which simmed Drosophila reads are stored) and create new dictionary to store unique kmers
-data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP000001/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
+# For each run, remove kmers that also appear in Drosophila (SRP111111) and E, muscae (SRP222222) transcriptomes and the Wolbachia (SRP333333), Sigma Virus (SRP444444),
+# Drosophila C Virus (SRP555555), and Nora Virus (SRP666666) genomes and then and create new dictionary to store unique kmers
+data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP111111/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
 background_kmers = data[5].tolist()
+data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP222222/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
+background_kmers.extend(data[5].tolist())
+data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP333333/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
+background_kmers.extend(data[5].tolist())
+try:
+	data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP444444/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
+	background_kmers.extend(data[5].tolist())
+except:
+	pass
+try:
+	data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP555555/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
+	background_kmers.extend(data[5].tolist())
+except:
+	pass
+try:
+	data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP666666/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
+	background_kmers.extend(data[5].tolist())
+except:
+	pass
 background_kmers = pd.unique(background_kmers).tolist()
 
 unique_kmers = {}
@@ -86,7 +106,6 @@ match_runs = data[0].tolist()
 match_runs = match_runs[1:len(match_runs)] # Same deal as above
 
 # Extract out denominator from first fraction (should be the same for all)
-
 total_kmers = ''
 for i in range(len(match_fraction[0])):
 	if match_fraction[0][i] != '/':
@@ -105,10 +124,29 @@ for match_run in match_runs:
 	decimal = len(unique_kmers[match_run])/float(total_kmers)
 	new_match_decimals.append(str(decimal))
 
+# Get source data (if study is SRP133370)
+if study == 'SRP133370':
+	sources = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/'+study+'/sources.txt', sep='\t')['Source'].tolist()
+
 # Create dataframe from match_runs, new_match_fractions, and new_match_decimals and write to csv
 data = {'Run Accession Number': match_runs, 'Match Fraction': new_match_fractions, 'Decimal Fraction': new_match_decimals}
 df = pd.DataFrame(data=data)
-if drive == 0:
+df = df.sort_values(by=['Run Accession Number'])
+match_runs = df['Run Accession Number']
+new_match_fractions = df['Match Fraction']
+new_match_decimals = df['Decimal Fraction']
+if study == 'SRP133370':
+	data = {'Run Accession Number': match_runs, 'Match Fraction': new_match_fractions, 'Decimal Fraction': new_match_decimals, 'Source': sources}
+	df = pd.DataFrame(data=data) 
+	df = df[['Run Accession Number', 'Match Fraction', 'Decimal Fraction', 'Source']]
+else:
+	data = {'Run Accession Number': match_runs, 'Match Fraction': new_match_fractions, 'Decimal Fraction': new_match_decimals}
+	df = pd.DataFrame(data=data) 
+	df = df[['Run Accession Number', 'Match Fraction', 'Decimal Fraction']]
+df = df.sort_values(by=['Decimal Fraction'], ascending=False)
+if drive == 0 and study == 'SRP133370':
+	df.to_csv('/home/nickeener/projects/drosophilaViruses/mapping/'+study+'/bloomTrees/corrected_query_'+sys.argv[3]+'.dat', sep='\t', index=False, columns=['Run Accession Number', 'Match Fraction', 'Decimal Fraction', 'Source'])
+elif drive == 0 and study != 'SRP133370':
 	df.to_csv('/home/nickeener/projects/drosophilaViruses/mapping/'+study+'/bloomTrees/corrected_query_'+sys.argv[3]+'.dat', sep='\t', index=False, columns=['Run Accession Number', 'Match Fraction', 'Decimal Fraction'])
 else: 
 	df.to_csv('/media/nickeener/External_Drive/'+study+'/bloomTrees/corrected_query_'+sys.argv[3]+'.dat', sep='\t', index=False, columns=['Run Accession Number', 'Match Fraction', 'Decimal Fraction'])
