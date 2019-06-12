@@ -15,8 +15,8 @@ import pdb
 
 # Set study accession number and drive type to variable
 study = sys.argv[1]
-drive = sys.argv[3]
-
+drive = int(sys.argv[3])
+print("0")
 # Read file, store as list and remove newline characters
 if drive == 0:
 	pair1file = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/pair1.txt"
@@ -65,31 +65,40 @@ pair2commalist = pair2commalist[:-1]
 
 # Store absolute path to reference genome index
 reference = sys.argv[2]
-index = "/home/nickeener/projects/drosophilaViruses/mapping/indexes/"+reference+"/bowtie2/"+reference
+index = "/home/nickeener/projects/drosophilaViruses/mapping/indexes/bowtie2/"+reference
 
 # Create new folder to store results in
 if drive == 0:
-	#newdir = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/bowtie"
-	newdir = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/bowtie/individual"
+	newdir = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/bowtie"
 else:
-	#newdir = "/media/nickeener/External_Drive/"+study+"/bowtie"
-	newdir = "/media/nickeener/External_Drive/"+study+"/bowtie/individual"
+	newdir = "/media/nickeener/External_Drive/"+study+"/bowtie"
 try:
 	subprocess.call(['mkdir', newdir])
 except:
 	pass
 
 # Call bowtie2 on all runs in a study at once
-#subprocess.call(['./bowtie2.sh', index, pair1commalist, pair2commalist, newdir, sys.argv[2]])
+subprocess.call(['./bowtie2.sh', index, pair1commalist, pair2commalist, newdir, sys.argv[2]])
+	
+'''# Run the following lines only if aligning each fastq file individually	
+if drive == 0:
+	newdir = "/home/nickeener/projects/drosophilaViruses/mapping/"+study+"/bowtie/individual"
+else:
+	newdir = "/media/nickeener/External_Drive/"+study+"/bowtie/individual"
+try:
+	subprocess.call(['mkdir', newdir])
+except:
+	pass
+
 
 # Call bowtie2 on each run individually
 for pair1,pair2 in zip(newpair1,newpair2):
 	if drive == 0:
 		print("Mapping "+study+" - "+pair1[61:71])
-		subprocess.call(['./bowtie2.sh', index, pair1, pair2, newdir, pair1[61:71]])
+		subprocess.call(['./bowtie2.sh', index, pair1, pair2, newdir, pair1[61:71], reference])
 	else:
 		print("Mapping "+pair1[42:52])
-		subprocess.call(['./bowtie2.sh', index, pair1, pair2, newdir, pair1[42:52]])
+		subprocess.call(['./bowtie2.sh', index, pair1, pair2, newdir, pair1[42:52], reference])'''
 
 
 # Debugging

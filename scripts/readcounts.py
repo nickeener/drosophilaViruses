@@ -1,34 +1,21 @@
-# Usage: python readcounts.py [Study Acession Number] [Drive Type (0 for main drive or 1 for external drive)]
+# Creates file with the number of reads in each accession for a set of reads
+# USAGE: python readcounts.py [Study Accession Number] [Drive Type]
+
+# Import libraries
 import sys
 import subprocess
 import pdb
 
-# Assign study accession number to variable and set drive type
+# Set study accession to and path to mapping directory to variables
 study = sys.argv[1]
-drive = int(sys.argv[2])
-
-# Get list of all files/directories in the mapping directory of interest
-if drive == 0:
-	ls = subprocess.Popen(['ls', '/home/nickeener/projects/drosophilaViruses/mapping/'+study], stdout=subprocess.PIPE)
+if sys.argv[2] == 0:
+	mapdir = '/home/nickeener/projects/drosophilaViruses/mapping/'+study
 else:
-	ls = subprocess.Popen(['ls', '/media/nickeener/External_Drive/'+study], stdout=subprocess.PIPE)
-output = ls.stdout.read()
+	mapdir = '/media/nickeener/External_Drive'
 
-# Convert output string into list containing only the read files
-reads = []
-for i in range(len(output)):
-	if output[i] == 'S' or output[i] == 'E' and output[i+1] == 'R':
-		reads.append(output[i:i+21])
+# Get list of all read files (one per pair) and create list with the absolute path to each file
+ls = subprocess.Popen(['ls', mapdir+'/*_1.fastq.gz'], stdout=subprocess.PIPE)
+runs = ls .stdout.read()
 
-# Elimnate every other element from previous list (each run has a double because of forward/reverse reads)
-runs = []
-for i in range(len(reads)):
-	if i%2 == 0:
-		runs.append(reads[i])
-
-# Call readcounts.sh on each run to print out the number of reads in each run to stdout
-print("Run Accession Number\tRead Count")
 for run in runs:
-	output = subprocess.Popen(['./readcounts.sh', study, run], stdout=subprocess.PIPE)
-	linecount = output.stdout.read()
-	print(run[0:10]+'\t'+str(int(linecount)/4))
+	subprocess.call(['./readcounts.sh', study, run])

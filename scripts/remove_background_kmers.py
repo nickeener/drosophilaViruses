@@ -63,11 +63,11 @@ data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP222222
 background_kmers.extend(data[5].tolist())
 data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP333333/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
 background_kmers.extend(data[5].tolist())
-try:
+'''try:
 	data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP444444/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
 	background_kmers.extend(data[5].tolist())
 except:
-	pass
+	pass'''
 try:
 	data = pd.read_csv('/home/nickeener/projects/drosophilaViruses/mapping/SRP555555/bloomTrees/combined_k'+kmer+'.kmer', header=None, sep=' ')
 	background_kmers.extend(data[5].tolist())

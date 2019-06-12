@@ -1,4 +1,4 @@
-#!/bin/bash
+c#!/bin/bash
 
 # Convert fasta files to Bloom filter bit vectors
 cd ~/projects/drosophilaViruses/mapping/$1
